@@ -1,0 +1,55 @@
+version: '3.7'
+
+services:
+  todo-database:
+    container_name: compose-todo-database
+    image: postgres:latest
+    
+    environment:
+      POSTGRES_DB: tododb 
+      POSTGRES_USER: todouser 
+      POSTGRES_PASSWORD: todopassword
+    
+    networks:
+      - todo-network
+        
+    ports:
+      - "5432:5432"
+  
+  todo-backend:
+    container_name: compose-todo-backend
+    image: babanin/todo-list-backend:latest
+    
+    environment:      
+      DATABASE_HOST: localhost
+      DATABASE_USER: todouser
+      DATABASE_PASS: todopassword
+    
+    depends_on:
+      - todo-database
+    
+    ports:
+      - "3001:3001"
+    
+    networks:
+      - todo-network
+    
+  todo-frontend:
+    container_name: compose-todo-frontend
+    image: babanin/todo-list-frontend:latest
+    
+    environment:
+      API_URL: http://localhost:3001
+      
+    depends_on:
+      - todo-backend
+        
+    ports:
+      - "3000:3000"
+    
+    networks:
+      - todo-network  
+
+networks:
+  todo-network:
+    driver: bridge
